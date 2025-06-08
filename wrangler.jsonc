@@ -1,0 +1,60 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "rwsdk-oauth-starter",
+  "main": "src/worker.tsx",
+  "compatibility_date": "2024-09-23",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "binding": "ASSETS"
+  },
+  "observability": {
+    "enabled": true
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "SESSION_DURABLE_OBJECT",
+        "class_name": "SessionDurableObject"
+      },
+      {
+        "name": "REALTIME_DURABLE_OBJECT",
+        "class_name": "RealtimeDurableObject"
+      }
+    ]
+  },
+  "vars": {
+    "WEBAUTHN_APP_NAME": "rwsdk-oauth-starter"
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["SessionDurableObject"]
+    }
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "__change_me__",
+      "database_id": "__change_me__"
+    }
+  ],
+  "queues": {
+    "producers": [
+      {
+        "binding": "QUEUE",
+        "queue": "my-messages"
+      }
+    ],
+    "consumers": [
+      {
+        "queue": "my-messages",
+        "max_batch_size": 10,
+        "max_batch_timeout": 1
+      }
+    ]
+  },
+  "triggers": {
+    //"crons": ["* * * * *"]
+    "crons": []
+  }
+}

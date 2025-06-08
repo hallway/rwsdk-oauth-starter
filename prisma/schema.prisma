@@ -1,0 +1,82 @@
+// Streamlined Prisma schema focused on auth essentials
+generator client {
+  provider = "prisma-client"
+  runtime                = "workerd"
+  moduleFormat           = "esm"
+  generatedFileExtension = "ts"
+  importFileExtension    = "ts"
+  output          = "../generated/prisma"
+  previewFeatures = ["queryCompiler", "driverAdapters"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Core User model with essential auth fields
+model User {
+  id            String    @id @default(uuid())
+  //username      String    @unique
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now()) @updatedAt
+  
+  // Auth relationships
+  sessions      Session[]
+  accounts      Account[]
+  
+  @@map("user")
+}
+
+// Session management for secure auth
+model Session {
+  id        String   @id @default(uuid())
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+// OAuth/External provider accounts
+model Account {
+  id                    String    @id @default(uuid())
+  accountId             String    // Provider's user ID
+  providerId            String    // e.g., "google", "github"
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?   // For email/password auth
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @default(now()) @updatedAt
+
+  @@unique([providerId, accountId]) // One account per provider per external user
+  @@map("account")
+}
+
+// Email verification, password reset, etc.
+model Verification {
+  id         String    @id @default(uuid())
+  identifier String    // email, phone, etc.
+  value      String    // verification code/token
+  expiresAt  DateTime
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @default(now()) @updatedAt
+
+  @@unique([identifier, value]) // Prevent duplicate codes
+  @@map("verification")
+}
