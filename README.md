@@ -8,6 +8,8 @@ This "standard starter" is the recommended implementation for RedwoodSDK. You ge
 - Realtime 
 - Session Management (via DurableObjects)
 - Storage (via R2)
+- Queues (via D1)
+- Authentication (via BetterAuth)
 
 ## Creating your project
 
