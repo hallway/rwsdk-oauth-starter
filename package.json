@@ -29,10 +29,8 @@
   "dependencies": {
     "@prisma/adapter-d1": "~6.8.2",
     "@prisma/client": "~6.8.2",
-    "@simplewebauthn/browser": "^13.1.0",
-    "@simplewebauthn/server": "^13.1.1",
     "@tailwindcss/vite": "^4.1.8",
-    "better-auth": "^1.2.8",
+    "better-auth": "1.2.8",
     "react-icons": "^5.5.0",
     "rwsdk": "0.0.88",
     "tailwind-merge": "^3.3.0",

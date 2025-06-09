@@ -1,12 +1,13 @@
 // Streamlined Prisma schema focused on auth essentials
+
 generator client {
-  provider = "prisma-client"
+  provider               = "prisma-client"
   runtime                = "workerd"
   moduleFormat           = "esm"
   generatedFileExtension = "ts"
   importFileExtension    = "ts"
-  output          = "../generated/prisma"
-  previewFeatures = ["queryCompiler", "driverAdapters"]
+  output                 = "../generated/prisma"
+  previewFeatures        = ["queryCompiler", "driverAdapters"]
 }
 
 datasource db {
@@ -15,24 +16,33 @@ datasource db {
 }
 
 // Core User model with essential auth fields
+
 model User {
-  id            String    @id @default(uuid())
+  id               String       @id @default(uuid())
   //username      String    @unique
-  name          String
-  email         String    @unique
-  emailVerified Boolean   @default(false)
-  image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @default(now()) @updatedAt
-  
+  name             String
+  email            String       @unique
+  emailVerified    Boolean      @default(false)
+  image            String?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @default(now()) @updatedAt
   // Auth relationships
-  sessions      Session[]
-  accounts      Account[]
-  
+  sessions         Session[]
+  accounts         Account[]
+  role             String?
+  banned           Boolean?
+  banReason        String?
+  banExpires       DateTime?
+  twoFactorEnabled Boolean?
+  twofactors       TwoFactor[]
+  members          Member[]
+  invitations      Invitation[]
+
   @@map("user")
 }
 
 // Session management for secure auth
+
 model Session {
   id        String   @id @default(uuid())
   expiresAt DateTime
@@ -44,14 +54,18 @@ model Session {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  impersonatedBy       String?
+  activeOrganizationId String?
+
   @@map("session")
 }
 
 // OAuth/External provider accounts
+
 model Account {
   id                    String    @id @default(uuid())
-  accountId             String    // Provider's user ID
-  providerId            String    // e.g., "google", "github"
+  accountId             String // Provider's user ID
+  providerId            String // e.g., "google", "github"
   userId                String
   user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   accessToken           String?
@@ -60,23 +74,76 @@ model Account {
   accessTokenExpiresAt  DateTime?
   refreshTokenExpiresAt DateTime?
   scope                 String?
-  password              String?   // For email/password auth
+  password              String? // For email/password auth
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @default(now()) @updatedAt
 
-  @@unique([providerId, accountId]) // One account per provider per external user
+  // One account per provider per external user
+  @@unique([providerId, accountId])
   @@map("account")
 }
 
 // Email verification, password reset, etc.
-model Verification {
-  id         String    @id @default(uuid())
-  identifier String    // email, phone, etc.
-  value      String    // verification code/token
-  expiresAt  DateTime
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @default(now()) @updatedAt
 
-  @@unique([identifier, value]) // Prevent duplicate codes
+model Verification {
+  id         String   @id @default(uuid())
+  identifier String // email, phone, etc.
+  value      String // verification code/token
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+
+  // Prevent duplicate codes
+  @@unique([identifier, value])
   @@map("verification")
+}
+
+model TwoFactor {
+  id          String @id
+  secret      String
+  backupCodes String
+  userId      String
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("twoFactor")
+}
+
+model Organization {
+  id          String       @id
+  name        String
+  slug        String?
+  logo        String?
+  createdAt   DateTime
+  metadata    String?
+  members     Member[]
+  invitations Invitation[]
+
+  @@unique([slug])
+  @@map("organization")
+}
+
+model Member {
+  id             String       @id
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role           String
+  createdAt      DateTime
+
+  @@map("member")
+}
+
+model Invitation {
+  id             String       @id
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  email          String
+  role           String?
+  status         String
+  expiresAt      DateTime
+  inviterId      String
+  user           User         @relation(fields: [inviterId], references: [id], onDelete: Cascade)
+
+  @@map("invitation")
 }

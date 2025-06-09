@@ -1,13 +1,8 @@
 import { RequestInfo } from "rwsdk/worker";
-import { setupAuthClient } from "@/lib/auth-client";
+import { SignoutButton } from "./SignoutButton";
 
 export function Home({ ctx }: RequestInfo) {
   const user = ctx.user;
-  const authClient = setupAuthClient("http://localhost:5173");
-
-  const handleSignOut = () => {
-    authClient.signOut();
-  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
@@ -32,12 +27,7 @@ export function Home({ ctx }: RequestInfo) {
                   <span className="text-xs text-gray-500">{user.email}</span>
                 </div>
               </div>
-              <button
-                onClick={handleSignOut}
-                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
-              >
-                Logout
-              </button>
+              <SignoutButton />
             </div>
           ) : (
             <div className="flex gap-3">

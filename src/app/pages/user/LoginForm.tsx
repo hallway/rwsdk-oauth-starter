@@ -51,7 +51,6 @@ export function LoginForm({ authUrl, mode = 'signup' }: LoginFormProps) {
   const [socialLoading, setSocialLoading] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
 
-  console.log('authUrl', authUrl);
   const authClient = setupAuthClient(authUrl);
 
   const isLogin = mode === 'login';
@@ -84,7 +83,7 @@ export function LoginForm({ authUrl, mode = 'signup' }: LoginFormProps) {
           },
           onSuccess: () => {
             setResult("Signup successful!");
-            window.location.href = link("/home");
+            window.location.href = link("/");
           },
           onError: (ctx) => {
             console.log("signup error", ctx.error);
@@ -115,7 +114,8 @@ export function LoginForm({ authUrl, mode = 'signup' }: LoginFormProps) {
           },
           onSuccess: () => {
             setResult("Login successful!");
-            window.location.href = link("/home");
+            console.log("Login successful!");
+            window.location.href = link("/");
           },
           onError: (ctx) => {
             console.log("login error", ctx.error);
@@ -142,7 +142,6 @@ export function LoginForm({ authUrl, mode = 'signup' }: LoginFormProps) {
         provider: providerId,
         callbackURL: "/api/auth/callback/google",
         errorCallbackURL: "/login?error=social_auth_failed",
-        newUserCallbackURL: "/",
       });
     } catch (err) {
       setError('Failed to initialize social login');
