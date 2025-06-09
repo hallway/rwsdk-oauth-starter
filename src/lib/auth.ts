@@ -18,7 +18,6 @@ export const auth = betterAuth({
   }),
   hooks: {
     before: async (ctx) => {
-      console.log('db', db)
     },
   },
   databaseHooks: {

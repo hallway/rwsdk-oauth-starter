@@ -60,7 +60,7 @@ export function LoginForm({ authUrl, mode = 'signup' }: LoginFormProps) {
     submitButton: isLogin ? 'Sign In' : 'Sign Up',
     switchText: isLogin ? "Don't have an account?" : 'Already have an account?',
     switchAction: isLogin ? 'Sign Up' : 'Sign In',
-    switchUrl: isLogin ? '/signup' : '/login'
+    switchUrl: isLogin ? '/user/signup' : '/user/login'
   };
 
   const handleSignUp = () => {
