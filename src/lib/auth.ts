@@ -9,18 +9,21 @@ import {
 } from "better-auth/plugins";
 import { env } from "cloudflare:workers";
 import { setupDb } from "@/db";
+import { sendVerificationEmail } from "./email";
 
 export const auth = betterAuth({
   database: prismaAdapter(db, {
-    provider: "sqlite",
-    debugLogs: true,
-    
+    provider: "sqlite"
   }),
   hooks: {
     before: async (ctx) => {
+      await setupDb(env)
     },
   },
   databaseHooks: {
+    before: async () => {
+      await setupDb(env)
+    },
     verification: {
       create: {
         before: async (verification: any) => {
@@ -54,7 +57,7 @@ export const auth = betterAuth({
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, url, token }, request) => {
-      console.log(`Verification email for ${user.email}: ${url}`);
+      await sendVerificationEmail(user.email, url);
     },
   },
   socialProviders: {

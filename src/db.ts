@@ -23,4 +23,5 @@ export const setupDb = async (env: Env) => {
 
   // context(justinvdm, 21-05-2025): https://github.com/cloudflare/workers-sdk/pull/8283
   await db.$queryRaw`SELECT 1`;
+  return db;
 };

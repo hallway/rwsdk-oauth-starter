@@ -17,6 +17,7 @@ import { queue } from "./queue";
 // auth
 import { auth } from "./lib/auth";
 
+
 export type AppContext = {
   session: Session | null;
   user: User | null;
@@ -27,9 +28,10 @@ const app = defineApp([
   realtimeRoute(() => env.REALTIME_DURABLE_OBJECT),
   setCommonHeaders(),
   async ({ ctx, request, headers }) => {
+    await setupDb(env);
     ctx.authUrl = env.BETTER_AUTH_URL;
 
-    await setupDb(env);
+    
     setupSessionStore(env);
     
     try {
@@ -37,8 +39,6 @@ const app = defineApp([
         headers: request.headers,
       });
 
-      console.log("session", session);
-      console.log('request.url', request.url);
 
       if (session?.user) {
         ctx.user = {
@@ -91,7 +91,8 @@ const app = defineApp([
       status: 401,
     });
   }),
-  route("/api/auth/*", ({ request }) => {
+  route("/api/auth/*", async ({ request }) => {
+    await setupDb(env);
     return auth.handler(request);
   }),
   render(Document, [

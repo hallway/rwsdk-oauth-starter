@@ -10,14 +10,27 @@ This "standard starter" is the recommended implementation for RedwoodSDK. You ge
 - Storage (via R2)
 - Queues (via D1)
 - Authentication (via BetterAuth)
+- Resend (for email)
 
 ## Creating your project
 
 ```shell
-npx create-rwsdk my-project-name
-cd my-project-name
 pnpm install
 ```
+
+## Environemnt vars
+
+Set the following environment variables in your `.env` file:
+
+```shell
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
+RESEND_API_KEY=
+```
+
+Run `npx wrangler types` to generate the `worker-configuration.d.ts` file.
 
 ## Running the dev server
 
@@ -29,9 +42,7 @@ Point your browser to the URL displayed in the terminal (e.g. `http://localhost:
 
 ## Wrangler Types
 
-```shell
-npx wrangler types
-```
+
 
 This will generate a `worker-configuration.d.ts` file in your project root and resolve your missing environment variables types.
 
