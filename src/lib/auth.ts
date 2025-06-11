@@ -8,8 +8,10 @@ import {
     twoFactor,
 } from "better-auth/plugins";
 import { env } from "cloudflare:workers";
-import { setupDb } from "@/db";
+import { setupDb } from "@/db";˝
 import { sendVerificationEmail } from "./email";
+
+setupDb(env)
 
 export const auth = betterAuth({
   database: prismaAdapter(db, {
