@@ -22,7 +22,7 @@ export const auth = betterAuth({
   },
   databaseHooks: {
     before: async () => {
-      await setupDb(env)
+      await setupDb(env) // might be redundant 
     },
     verification: {
       create: {
@@ -39,6 +39,7 @@ export const auth = betterAuth({
       create: {
         before: async (user: any) => {
           console.log('user before', user)
+          await setupDb(env) // might be redundant 
           delete user.role;
           return user;
         },
