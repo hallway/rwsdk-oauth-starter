@@ -28,6 +28,7 @@ export const auth = betterAuth({
       create: {
         before: async (verification: any) => {
           console.log('verification before', verification)
+          await setupDb(env);
           return verification;
         },
         after: async (verification: any) => {
