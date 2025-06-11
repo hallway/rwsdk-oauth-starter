@@ -42,9 +42,15 @@ Point your browser to the URL displayed in the terminal (e.g. `http://localhost:
 
 ## Wrangler Types
 
+Run `wrangler types` to generate the `worker-configuration.d.ts` file.
 
+## Shadcn UI Hydration Error
 
-This will generate a `worker-configuration.d.ts` file in your project root and resolve your missing environment variables types.
+You may need to add `aria-controls` to ui components for shadcn ui to work. For example:
+
+```
+<SelectTrigger className="w-full" aria-controls="workspace-dropdown-content">
+```
 
 ## Deploying your app
 
