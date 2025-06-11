@@ -17,7 +17,7 @@ export const auth = betterAuth({
   }),
   hooks: {
     before: async (ctx) => {
-      await setupDb(env)
+      await setupDb(env) // we seem to need to add this everywhere to get the db to work
     },
   },
   databaseHooks: {
