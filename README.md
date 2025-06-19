@@ -1,5 +1,13 @@
 # Standard RedwoodSDK Starter
 
+## Demo URL
+
+ **Live Demo**: [https://rwsdk-oauth-starter.johndevor.workers.dev/](https://rwsdk-oauth-starter.johndevor.workers.dev/)
+
+See the starter in action! This demo showcases all the features included in this RedwoodSDK starter template.
+
+## Overview
+
 This "standard starter" is the recommended implementation for RedwoodSDK. You get a Typescript project with:
 
 - Vite
@@ -55,6 +63,8 @@ You may need to add `aria-controls` to ui components for shadcn ui to work. For 
 ## Deploying your app
 
 ### Wrangler Setup
+
+Copy wrangler.example.jsonc` to `wrangler.jsonc` and fill in the values.
 
 Within your project's `wrangler.jsonc`:
 

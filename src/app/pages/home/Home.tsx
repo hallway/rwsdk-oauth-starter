@@ -1,5 +1,6 @@
 import { RequestInfo } from "rwsdk/worker";
 import { SignoutButton } from "./SignoutButton";
+import { env } from "cloudflare:workers";
 
 export function Home({ ctx }: RequestInfo) {
   const user = ctx.user;
@@ -23,11 +24,11 @@ export function Home({ ctx }: RequestInfo) {
                   )}
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-sm font-medium text-gray-900">{user.name || user.username}</span>
+                  <span className="text-sm font-medium text-gray-900">{user.name}</span>
                   <span className="text-xs text-gray-500">{user.email}</span>
                 </div>
               </div>
-              <SignoutButton />
+              <SignoutButton url={env.BETTER_AUTH_URL} />
             </div>
           ) : (
             <div className="flex gap-3">

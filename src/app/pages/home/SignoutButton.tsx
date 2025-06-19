@@ -2,8 +2,8 @@
 
 import { setupAuthClient } from "@/lib/auth-client";
 
-export function SignoutButton() {
-  const authClient = setupAuthClient("http://localhost:5173");
+export function SignoutButton({ url }: { url: string }) {
+  const authClient = setupAuthClient(url);
 
   const handleSignOut = () => {
     authClient.signOut().then(() => { console.log("signed out"); window.location.reload(); });
