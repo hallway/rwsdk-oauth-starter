@@ -10,7 +10,6 @@ export default defineConfig({
     redwood(),
     tailwindcss(),
   ],
-  ,
   build: {
     rollupOptions: {
       external: ['react-dom/server']
