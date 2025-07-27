@@ -36,13 +36,8 @@ model User {
   banExpires       DateTime?
   twoFactorEnabled Boolean?
   twofactors       TwoFactor[]
-  members          Member[]
-  invitations      Invitation[]
-  chatMessages     ChatMessage[]
-  openAIThreads    OpenAIThread[]
   apiKeys          ApiKey[]
-  spaceMemberships SpaceMember[]
-  spaces           Space[]        @relation("SpaceOwner")
+  items            Item[]
 
   @@map("user")
 }
@@ -114,46 +109,6 @@ model TwoFactor {
   @@map("twoFactor")
 }
 
-model Organization {
-  id          String       @id
-  name        String
-  slug        String?
-  logo        String?
-  createdAt   DateTime
-  metadata    String?
-  members     Member[]
-  invitations Invitation[]
-
-  @@unique([slug])
-  @@map("organization")
-}
-
-model Member {
-  id             String       @id
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  userId         String
-  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role           String
-  createdAt      DateTime
-
-  @@map("member")
-}
-
-model Invitation {
-  id             String       @id
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  email          String
-  role           String?
-  status         String
-  expiresAt      DateTime
-  inviterId      String
-  user           User         @relation(fields: [inviterId], references: [id], onDelete: Cascade)
-
-  @@map("invitation")
-}
-
 model ApiKey {
   id        String    @id @default(uuid())
   createdAt DateTime  @default(now())
@@ -166,210 +121,16 @@ model ApiKey {
   @@map("apiKey")
 }
 
-model Space {
-  id        String               @id @default(uuid())
-  createdAt DateTime             @default(now())
-  updatedAt DateTime             @default(now()) @updatedAt
-  ownerId   String
-  owner     User                 @relation("SpaceOwner", fields: [ownerId], references: [id], onDelete: Cascade)
-  name      String               @unique
-  color     String?
-  members   SpaceMember[]
-  objects   Object[]
-
-  @@index([ownerId])
-  @@map("space")
-}
-
-enum SpaceMemberRole {
-  OWNER
-  ADMIN
-  MEMBER
-  VIEWER
-}
-
-model SpaceMember {
-  id             String       @id @default(uuid())
-  space          Space        @relation(fields: [spaceId], references: [id], onDelete: Cascade)
-  spaceId        String
-  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId         String
-  role           SpaceMemberRole @default(MEMBER)
-  joinedAt       DateTime     @default(now())
-
-  @@unique([spaceId, userId])
-  @@index([userId])
-  @@index([spaceId])
-  @@map("spaceMember")
-}
-
-enum ObjectType {
-  FOLDER
-  OBJECT
-}
-
-model Object {
-  id               String        @id @default(uuid())
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @default(now()) @updatedAt
-  name             String        @default("New object")
-  description      String?
-  space            Space         @relation(fields: [spaceId], references: [id], onDelete: Cascade)
-  spaceId          String
-  icon             String?
-  order            Int           @default(0)
-  
-  // Hierarchical structure
-  parent           Object?       @relation("ObjectHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
-  parentId         String?
-  children         Object[]      @relation("ObjectHierarchy")
-  
-  // Self-definition
-  objectSchema     String        @default("{}") // JSON schema defining the object's structure and capabilities
-  data             String        @default("{}") // JSON data following the objectSchema
-  
-  // DATABASE CONFIGURATION
-  hasDatabase      Boolean       @default(false)
-  tursoUrl         String?       // Turso database URL
-  tursoToken       String?       // Encrypted Turso auth token
-  
-  // EXECUTION CONFIGURATION
-  hasUI            Boolean       @default(true)  // false for code-only objects
-  entryPoint       String?       // e.g., "index.ts", "main.js"
-  
-  // HOSTING CONFIGURATION
-  hostUrl          String?       // e.g., "https://esm.town/v/myspace/my-object?v=6"
-  currentVersion   Int           @default(1)
-  isPublished      Boolean       @default(false)
-  
-  // Relationships
-  branches         Branch[]
-  snapshots        Snapshot[]
-  tags             ObjectTag[]
-  permissions      ObjectPermission[]
-
-  @@unique([spaceId, name, parentId])
-  @@index([spaceId])
-  @@index([parentId])
-  @@index([hasDatabase])
-  @@index([isPublished])
-  @@map("object")
-}
-
-model Branch {
-  id           String     @id @default(uuid())
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @default(now()) @updatedAt
-  name         String
-  object       Object     @relation(fields: [objectId], references: [id], onDelete: Cascade)
-  objectId     String
-  
-  // Current state of this branch (HEAD)
-  headSnapshot    Snapshot? @relation("BranchHead", fields: [headSnapshotId], references: [id])
-  headSnapshotId  String?   @unique
-  
-  // Branch metadata
-  isDefault    Boolean    @default(false)
-  isProtected  Boolean    @default(false)
-  
-  snapshots    Snapshot[] @relation("SnapshotBranch")
-
-  @@unique([objectId, name])
-  @@index([objectId])
-  @@map("branch")
-}
-
-model Snapshot {
+// Simple Item model for testing
+model Item {
   id          String   @id @default(uuid())
+  title       String
+  description String?
+  completed   Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @default(now()) @updatedAt
-  message     String?
-  
-  // Relationships
-  object      Object   @relation(fields: [objectId], references: [id], onDelete: Cascade)
-  objectId    String
-  branch      Branch   @relation("SnapshotBranch", fields: [branchId], references: [id], onDelete: Cascade)
-  branchId    String
-  
-  // Branch head relationship
-  branchHead  Branch?  @relation("BranchHead")
-  
-  // Multi-file support
-  files       File[]
-  
-  @@index([objectId])
-  @@index([branchId])
-  @@map("snapshot")
-}
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-model File {
-  id          String    @id @default(uuid())
-  
-  // File metadata
-  path        String    // relative path like "src/index.js" or "README.md"
-  content     String    // file contents
-  size        Int       // file size in bytes
-  mimeType    String?   // e.g., "application/javascript", "text/markdown"
-  
-  // Relationships
-  snapshot    Snapshot  @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
-  snapshotId  String
-
-  @@unique([snapshotId, path]) // One file per path per snapshot
-  @@index([snapshotId])
-  @@index([path])
-  @@map("file")
-}
-
-model ObjectTag {
-  id       String @id @default(uuid())
-  name     String
-  object   Object @relation(fields: [objectId], references: [id], onDelete: Cascade)
-  objectId String
-
-  @@unique([objectId, name])
-  @@index([objectId])
-  @@map("objectTag")
-}
-
-model ObjectPermission {
-  id       String @id @default(uuid())
-  object   Object @relation(fields: [objectId], references: [id], onDelete: Cascade)
-  objectId String
-  userId   String
-  role     String
-
-  @@unique([objectId, userId])
-  @@index([objectId])
-  @@index([userId])
-  @@map("objectPermission")
-}
-
-model ChatMessage {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
-  content   String
-  role      String // "user" or "assistant"
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  threadId  String?
-  thread    OpenAIThread? @relation(fields: [threadId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([threadId])
-  @@map("chatMessage")
-}
-
-model OpenAIThread {
-  id           String        @id @default(uuid())
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @default(now()) @updatedAt
-  threadId     String        @unique // OpenAI thread ID
-  userId       String
-  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  messages     ChatMessage[]
-
-  @@index([userId])
-  @@map("openAIThread")
+  @@map("item")
 }
