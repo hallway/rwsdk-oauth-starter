@@ -1,9 +1,12 @@
 import { RequestInfo } from "rwsdk/worker";
 import { SignoutButton } from "./SignoutButton";
+import { ItemList } from "./ItemList";
+import { getAllItems } from "@/app/shared/functions/item";
 import { env } from "cloudflare:workers";
 
-export function Home({ ctx }: RequestInfo) {
+export async function Home({ ctx }: RequestInfo) {
   const user = ctx.user;
+  const items = user ? await getAllItems(user.id) : [];
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
@@ -50,10 +53,7 @@ export function Home({ ctx }: RequestInfo) {
 
         <main>
           {user ? (
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Dashboard</h2>
-              <p className="text-gray-600">Welcome back! You're successfully logged in.</p>
-            </div>
+            <ItemList items={items} userId={user.id} />
           ) : (
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Get Started</h2>
